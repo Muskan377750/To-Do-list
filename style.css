@@ -1,0 +1,31 @@
+body{
+    background-image: url(leafy.jpg);
+    background-color: whitesmoke;
+    background-position: center;
+    /* background-repeat: no-repeat; */
+    background-size: cover;
+    height: 100vh;
+  
+}
+h1{
+    color: red;
+    font-size: 100px;
+    /* background-color: white; */
+    margin:30px;
+}
+.container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    flex-direction: column;
+}
+.text{
+    display: inline-block;
+    background-color: white;
+}
+button{
+    color: red;
+}
+
+
