@@ -73,6 +73,3 @@ clearBtn.addEventListener("click", () => {
   loadTasks();
 });
 
-function toggleTheme() {
-  document.body.classList.toggle("light");
-}
