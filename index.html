@@ -8,13 +8,20 @@
   </head>
   <body>
     <div class="container">
-     <h1>My TODO List</h1>
-     <div class="text">
-     <input type="text" placeholder="Add your task">
-     <button>Add task</button>
-     </div>
-     <ul></ul>
-     </div>
+  <h1>✨ My Smart TODO</h1>
+
+  <div class="inputBox">
+    <input type="text" placeholder="Add your task..." />
+    <button class="addBtn">Add</button>
+  </div>
+
+  <div class="actions">
+    <button class="clearBtn">Clear All</button>
+    <button onclick="toggleTheme()">🌙 Toggle Theme</button>
+  </div>
+
+  <ul></ul>
+</div>
     <script src="app.js"></script>
   </body>
 </html>
