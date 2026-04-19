@@ -148,9 +148,3 @@ li button:hover {
   }
 }
 
-@keyframes fadeOut {
-  to {
-    opacity: 0;
-    transform: translateX(40px);
-  }
-}
