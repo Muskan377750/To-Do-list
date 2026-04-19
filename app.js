@@ -75,3 +75,8 @@ function saveTasks() {
 }
 
 // Clear all
+clearBtn.addEventListener("click", () => {
+  ul.innerHTML = "";
+  tasks = [];
+  saveTasks();
+});
