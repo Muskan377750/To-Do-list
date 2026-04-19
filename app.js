@@ -5,36 +5,38 @@ let clearBtn = document.querySelector(".clearBtn");
 
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
-// Load tasks on page load
+// Load tasks
 function loadTasks() {
   ul.innerHTML = "";
-  tasks.forEach((task, index) => {
-    createTask(task.text, task.completed, index);
-  });
+  tasks.forEach((task, index) => createTask(task.text, task.completed, index));
 }
 loadTasks();
 
 // Add task
 function addTask() {
-  if (inp.value.trim() === "") return;
+  let value = inp.value.trim();
+  if (value === "") return;
 
-  tasks.push({ text: inp.value, completed: false });
+  let newTask = { text: value, completed: false };
+  tasks.push(newTask);
+
+  createTask(newTask.text, newTask.completed, tasks.length - 1);
   saveTasks();
-  loadTasks();
+
   inp.value = "";
 }
 
 btn.addEventListener("click", addTask);
 
-// Enter key support
 inp.addEventListener("keypress", function (e) {
   if (e.key === "Enter") addTask();
 });
 
-// Create task UI
+// Create task
 function createTask(text, completed, index) {
   let li = document.createElement("li");
-  li.className = completed ? "completed" : "";
+  li.className = completed ? "completed fade-in" : "fade-in";
+  li.dataset.index = index;
 
   li.innerHTML = `
     <span>${text}</span>
@@ -48,28 +50,33 @@ function createTask(text, completed, index) {
 
   // Done toggle
   li.querySelector(".done").addEventListener("click", () => {
-    tasks[index].completed = !tasks[index].completed;
+    let i = li.dataset.index;
+    tasks[i].completed = !tasks[i].completed;
+    li.classList.toggle("completed");
     saveTasks();
-    loadTasks();
   });
 
-  // Delete task
+  // Delete
   li.querySelector(".delete").addEventListener("click", () => {
-    tasks.splice(index, 1);
-    saveTasks();
-    loadTasks();
+    li.classList.add("fade-out");
+
+    setTimeout(() => {
+      let i = li.dataset.index;
+      tasks.splice(i, 1);
+      saveTasks();
+      loadTasks(); // re-index properly
+    }, 300);
   });
 }
 
-// Save to local storage
+// Save
 function saveTasks() {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 }
 
-// Clear all tasks
+// Clear all
 clearBtn.addEventListener("click", () => {
+  ul.innerHTML = "";
   tasks = [];
   saveTasks();
-  loadTasks();
 });
-
