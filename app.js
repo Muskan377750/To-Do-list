@@ -1,64 +1,82 @@
-// app.js
-const inp = document.querySelector(".inputBox input");
-const btn = document.querySelector(".addBtn");
-const ul = document.querySelector("ul");
-const clearBtn = document.querySelector(".clearBtn");
+const todoApp = {
+    tasks: JSON.parse(localStorage.getItem("tasks")) || [],
+    
+    init() {
+        this.cacheDOM();
+        this.bindEvents();
+        this.render();
+    },
 
-let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+    cacheDOM() {
+        this.inp = document.querySelector("input");
+        this.btn = document.querySelector(".addBtn");
+        this.list = document.querySelector("ul");
+        this.clear = document.querySelector(".clearBtn");
+    },
 
-// 1. Render function
-function render() {
-  ul.innerHTML = tasks.map((task, index) => `
-    <li class="${task.completed ? 'completed' : ''} fade-in" data-index="${index}">
-      <span>${task.text}</span>
-      <div class="btn-group">
-        <button class="done-btn">✔</button>
-        <button class="del-btn">✖</button>
-      </div>
-    </li>
-  `).join('');
-  localStorage.setItem("tasks", JSON.stringify(tasks));
-}
+    bindEvents() {
+        this.btn.onclick = () => this.addTask();
+        this.inp.onkeypress = (e) => e.key === "Enter" && this.addTask();
+        this.clear.onclick = () => this.clearAll();
+        
+        // Delegation for performance
+        this.list.onclick = (e) => {
+            const id = e.target.closest("li")?.dataset.id;
+            if (e.target.classList.contains("done-btn")) this.toggleTask(id);
+            if (e.target.classList.contains("del-btn")) this.deleteTask(id);
+        };
+    },
 
-// 2. Add task
-function addTask() {
-  const text = inp.value.trim();
-  if (!text) return;
-  
-  tasks.push({ text, completed: false });
-  inp.value = "";
-  render();
-}
+    addTask() {
+        const val = this.inp.value.trim();
+        if (!val) return;
+        
+        this.tasks.push({ id: Date.now().toString(), text: val, completed: false });
+        this.inp.value = "";
+        this.render();
+    },
 
-// 3. Event Delegation (The "Smart" way)
-ul.addEventListener("click", (e) => {
-  const li = e.target.closest("li");
-  if (!li) return;
-  const index = li.dataset.index;
+    toggleTask(id) {
+        this.tasks = this.tasks.map(t => t.id === id ? {...t, completed: !t.completed} : t);
+        this.render();
+    },
 
-  if (e.target.classList.contains("done-btn")) {
-    tasks[index].completed = !tasks[index].completed;
-    render();
-  } 
-  
-  if (e.target.classList.contains("del-btn")) {
-    li.classList.add("fade-out");
-    li.addEventListener("animationend", () => {
-      tasks.splice(index, 1);
-      render();
-    });
-  }
-});
+    deleteTask(id) {
+        const el = this.list.querySelector(`[data-id="${id}"]`);
+        el.style.transform = "translateX(50px)";
+        el.style.opacity = "0";
+        
+        setTimeout(() => {
+            this.tasks = this.tasks.filter(t => t.id !== id);
+            this.render();
+        }, 300);
+    },
 
-// 4. Listeners
-btn.addEventListener("click", addTask);
-inp.addEventListener("keypress", (e) => e.key === "Enter" && addTask());
-clearBtn.addEventListener("click", () => {
-  if(confirm("Clear all tasks?")) {
-    tasks = [];
-    render();
-  }
-});
+    clearAll() {
+        if (confirm("Delete everything?")) {
+            this.tasks = [];
+            this.render();
+        }
+    },
 
-// Initial Load
-render();
+    render() {
+        localStorage.setItem("tasks", JSON.stringify(this.tasks));
+        
+        if (this.tasks.length === 0) {
+            this.list.innerHTML = `<p style="color:#64748b; font-size: 0.9rem">No tasks yet. Enjoy your day! ☕</p>`;
+            return;
+        }
+
+        this.list.innerHTML = this.tasks.map(task => `
+            <li class="${task.completed ? 'completed' : ''}" data-id="${task.id}">
+                <span>${task.text}</span>
+                <div class="btn-group">
+                    <button class="done-btn">✔</button>
+                    <button class="del-btn">✖</button>
+                </div>
+            </li>
+        `).join('');
+    }
+};
+
+todoApp.init();
