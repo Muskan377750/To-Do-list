@@ -31,9 +31,19 @@ h1 {
     font-size: 1.8rem;
     font-weight: 800;
     margin-top: 0;
-    background: linear-gradient(to right, #fff, #94a3b8);
+    
+    /* 1. The Gradient */
+    background-image: linear-gradient(to right, #ffffff, #94a3b8);
+    
+    /* 2. Clipping (Standard + Webkit) */
+    background-clip: text;
     -webkit-background-clip: text;
+    
+    /* 3. The "Magic" that makes the gradient show */
     -webkit-text-fill-color: transparent;
+    
+    /* 4. Accessibility Fallback */
+    color: #ffffff; 
 }
 
 /* Input Group */
