@@ -51,3 +51,14 @@ ul.addEventListener("click", (e) => {
 });
 
 // 4. Listeners
+btn.addEventListener("click", addTask);
+inp.addEventListener("keypress", (e) => e.key === "Enter" && addTask());
+clearBtn.addEventListener("click", () => {
+  if(confirm("Clear all tasks?")) {
+    tasks = [];
+    render();
+  }
+});
+
+// Initial Load
+render();
