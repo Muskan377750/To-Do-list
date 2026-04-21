@@ -73,3 +73,13 @@ ul.addEventListener("click", (e) => {
   render();
 });
 
+// Clear all
+clearBtn.onclick = () => {
+  if (confirm("Delete all tasks?")) {
+    tasks = [];
+    render();
+  }
+};
+
+// Initial load
+render();
