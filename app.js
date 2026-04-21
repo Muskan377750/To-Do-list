@@ -1,82 +1,75 @@
-const todoApp = {
-    tasks: JSON.parse(localStorage.getItem("tasks")) || [],
-    
-    init() {
-        this.cacheDOM();
-        this.bindEvents();
-        this.render();
-    },
+let inp = document.querySelector("input");
+let addBtn = document.querySelector(".addBtn");
+let ul = document.querySelector("ul");
+let clearBtn = document.querySelector(".clearBtn");
 
-    cacheDOM() {
-        this.inp = document.querySelector("input");
-        this.btn = document.querySelector(".addBtn");
-        this.list = document.querySelector("ul");
-        this.clear = document.querySelector(".clearBtn");
-    },
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 
-    bindEvents() {
-        this.btn.onclick = () => this.addTask();
-        this.inp.onkeypress = (e) => e.key === "Enter" && this.addTask();
-        this.clear.onclick = () => this.clearAll();
-        
-        // Delegation for performance
-        this.list.onclick = (e) => {
-            const id = e.target.closest("li")?.dataset.id;
-            if (e.target.classList.contains("done-btn")) this.toggleTask(id);
-            if (e.target.classList.contains("del-btn")) this.deleteTask(id);
-        };
-    },
+// Render tasks
+function render() {
+  ul.innerHTML = "";
 
-    addTask() {
-        const val = this.inp.value.trim();
-        if (!val) return;
-        
-        this.tasks.push({ id: Date.now().toString(), text: val, completed: false });
-        this.inp.value = "";
-        this.render();
-    },
+  if (tasks.length === 0) {
+    ul.innerHTML = "<li>No tasks yet ☕</li>";
+    return;
+  }
 
-    toggleTask(id) {
-        this.tasks = this.tasks.map(t => t.id === id ? {...t, completed: !t.completed} : t);
-        this.render();
-    },
+  tasks.forEach((task) => {
+    let li = document.createElement("li");
+    li.setAttribute("data-id", task.id);
+    if (task.completed) li.classList.add("completed");
 
-    deleteTask(id) {
-        const el = this.list.querySelector(`[data-id="${id}"]`);
-        el.style.transform = "translateX(50px)";
-        el.style.opacity = "0";
-        
-        setTimeout(() => {
-            this.tasks = this.tasks.filter(t => t.id !== id);
-            this.render();
-        }, 300);
-    },
+    li.innerHTML = `
+      <span>${task.text}</span>
+      <div class="btn-group">
+        <button class="done-btn">✔</button>
+        <button class="del-btn">✖</button>
+      </div>
+    `;
 
-    clearAll() {
-        if (confirm("Delete everything?")) {
-            this.tasks = [];
-            this.render();
-        }
-    },
+    ul.appendChild(li);
+  });
 
-    render() {
-        localStorage.setItem("tasks", JSON.stringify(this.tasks));
-        
-        if (this.tasks.length === 0) {
-            this.list.innerHTML = `<p style="color:#64748b; font-size: 0.9rem">No tasks yet. Enjoy your day! ☕</p>`;
-            return;
-        }
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+}
 
-        this.list.innerHTML = this.tasks.map(task => `
-            <li class="${task.completed ? 'completed' : ''}" data-id="${task.id}">
-                <span>${task.text}</span>
-                <div class="btn-group">
-                    <button class="done-btn">✔</button>
-                    <button class="del-btn">✖</button>
-                </div>
-            </li>
-        `).join('');
-    }
+// Add task
+addBtn.onclick = () => {
+  let text = inp.value.trim();
+  if (!text) return;
+
+  tasks.push({
+    id: Date.now().toString(),
+    text: text,
+    completed: false,
+  });
+
+  inp.value = "";
+  render();
 };
 
-todoApp.init();
+// Enter key support
+inp.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") addBtn.click();
+});
+
+// Handle clicks (delete + done)
+ul.addEventListener("click", (e) => {
+  let li = e.target.closest("li");
+  if (!li) return;
+
+  let id = li.dataset.id;
+
+  if (e.target.closest(".done-btn")) {
+    tasks = tasks.map((t) =>
+      t.id === id ? { ...t, completed: !t.completed } : t
+    );
+  }
+
+  if (e.target.closest(".del-btn")) {
+    tasks = tasks.filter((t) => t.id !== id);
+  }
+
+  render();
+});
+
